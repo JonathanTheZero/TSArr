@@ -1,14 +1,19 @@
-type Nullable<T> = T | null;
+type Nullable<T> = T | null | undefined;
 
 export default class Arr<T> {
     [x: number]: Nullable<T>;
     #length: number = 0;
 
-    constructor(...el: T[]) {
-        for (let a of el) this.push(a);
+    constructor(el: number);
+    constructor(...el: T[]);
+    constructor() {
+        if (arguments.length == 1 && typeof arguments[0] === "number") {
+            for (let i = 0; i < arguments[0]; ++i)
+                this.push(undefined);
+        } else for (let a of arguments) this.push(a);
     }
 
-    push(...el: T[]) {
+    push(...el: Nullable<T>[]) {
         let i = Object.keys(this).length;
         for (let a of el) this[i++] = a;
         this.#length += el.length;
@@ -23,11 +28,9 @@ export default class Arr<T> {
             for (let i in this)
                 if (!isNaN(Number(i)) && Number(i) >= l)
                     delete this[i];
-        } else if (l > this.#length) {
-            for (let i = this.#length; i < l; ++i) {
-                this[i] = null;
-            }
-        }
+        } else if (l > this.#length)
+            for (let i = this.#length; i < l; ++i)
+                this[i] = undefined;
     }
 
     toString(): string {
@@ -37,8 +40,14 @@ export default class Arr<T> {
     }
 
     [Symbol.iterator]() {
+        let step = 0,
+            length = this.#length;
+        const getVal = (index: number) => this[index];
         return {
             next() {
+                if (step < length)
+                    return { value: getVal(step++), done: false };
+                return { value: null, done: true };
             }
         }
     }
@@ -49,7 +58,17 @@ export default class Arr<T> {
     }
 
     concat(a: Arr<T>): number {
-        //for(let e of a) this.push(e);
+        for (let e of a) this.push(e);
         return this.#length;
     }
+
+    pop(): Nullable<T> {
+        if (this.#length == 0) return undefined;
+        let a: Nullable<T> = this[this.#length - 1];
+        delete this[this.#length - 1];
+        this.#length -= 1;
+        return a;
+    }
+
+    static isArr = (el: any) => el instanceof Arr;
 }
