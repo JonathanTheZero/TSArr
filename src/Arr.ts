@@ -54,6 +54,35 @@ export class Arr<T> {
             callback.call(thisArg, this[p], i++, this);
     }
 
+    /**
+     * Calls a defined callback function on each element of an arr, and returns an arr that contains the results.
+     * @param callbackfn A function that accepts up to three arguments. The map method calls the callbackfn function one time for each element in the arr.
+     * @param thisArg An object to which the this keyword can refer in the callbackfn function. If thisArg is omitted, undefined is used as the this value.
+     * @returns an arr of the mapped result
+     */
+    map<U>(callback: (value: Nullable<T>, index: number, arr: Arr<T>) => U, thisArg: any = undefined): Arr<U> {
+        const ret = new Arr<U>();
+        let i = 0;
+        for (let p in this)
+            ret.push(callback.call(thisArg, this[p], i++, this));
+        return ret;
+    }
+
+    /**
+     * Returns the elements of an array that meet the condition specified in a callback function.
+     * @param predicate A function that accepts up to three arguments. The filter method calls the predicate function one time for each element in the array.
+     * @param thisArg An object to which the this keyword can refer in the predicate function. If thisArg is omitted, undefined is used as the this value.
+     * @returns the filtered arr
+     */
+    filter<S extends T>(predicate: (value: Nullable<T>, index: number, arr: Arr<T>) => value is S, thisArg: any = undefined): Arr<S>{
+        const ret = new Arr<S>();
+        let i = 0;
+        for (let p in this)
+            if(predicate.call(thisArg, this[p], i++, this))
+            ret.push(this[p]);
+        return ret;
+    }
+
     //would be nicer to define without [] but that's not possible
     /**
      * Combines two or more Arrs.
@@ -139,7 +168,7 @@ export class Arr<T> {
         }
     }
 
-    [Symbol.toStringTag](){
+    [Symbol.toStringTag]() {
         return "Arr"
     }
 
