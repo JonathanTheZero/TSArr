@@ -69,17 +69,24 @@ export class Arr<T> {
     }
 
     /**
-     * Returns the elements of an array that meet the condition specified in a callback function.
-     * @param predicate A function that accepts up to three arguments. The filter method calls the predicate function one time for each element in the array.
+     * Returns the elements of an arr that meet the condition specified in a callback function.
+     * @param predicate A function that accepts up to three arguments. The filter method calls the predicate function one time for each element in the arr.
      * @param thisArg An object to which the this keyword can refer in the predicate function. If thisArg is omitted, undefined is used as the this value.
      * @returns the filtered arr
      */
-    filter<S extends T>(predicate: (value: Nullable<T>, index: number, arr: Arr<T>) => value is S, thisArg: any = undefined): Arr<S>{
+    filter(predicate: (value?: T, index?: number, arr?: Arr<T>) => unknown, thisArg?: any): Arr<T>;
+    /**
+     * Returns the elements of an arr that meet the condition specified in a callback function.
+     * @param predicate A function that accepts up to three arguments. The filter method calls the predicate function one time for each element in the arr.
+     * @param thisArg An object to which the this keyword can refer in the predicate function. If thisArg is omitted, undefined is used as the this value.
+     * @returns the filtered arr
+     */
+    filter<S extends T>(predicate: (value?: Nullable<T>, index?: number, arr?: Arr<T>) => value is S, thisArg: any = undefined): Arr<S> {
         const ret = new Arr<S>();
         let i = 0;
         for (let p in this)
-            if(predicate.call(thisArg, this[p], i++, this))
-            ret.push(this[p]);
+            if (predicate.call(thisArg, this[p], i++, this))
+                ret.push(<S>this[p]);
         return ret;
     }
 
@@ -166,10 +173,6 @@ export class Arr<T> {
                 return { value: null, done: true };
             }
         }
-    }
-
-    [Symbol.toStringTag]() {
-        return "Arr"
     }
 
     /**
